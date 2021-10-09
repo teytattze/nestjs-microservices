@@ -12,7 +12,7 @@ model Account {
   email    String @unique
   password String
 
-  sessions Session?
+  session Session?
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")

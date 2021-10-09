@@ -1,17 +1,21 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
+import { API_CLIENT_CONFIG } from '@app/common/config';
+import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  const configService = app.get(ConfigService);
-  const HOST = configService.get('server.host');
-  const PORT = configService.get('server.port');
+  app.setGlobalPrefix('/api');
+  app.useGlobalPipes(new ValidationPipe());
 
-  await app
-    .listen(PORT, HOST)
-    .then(() => console.log(`Api Client is listening on ${HOST}:${PORT}`))
-    .catch((err) => console.log(err));
+  const configService = app.get(ConfigService);
+  const HOST = configService.get(`${API_CLIENT_CONFIG}.server.host`);
+  const PORT = configService.get(`${API_CLIENT_CONFIG}.server.port`);
+
+  await app.listen(PORT, () =>
+    console.log(`Api Client is listening on ${HOST}:${PORT}`),
+  );
 }
-bootstrap();
+bootstrap().catch((err) => console.log(err));

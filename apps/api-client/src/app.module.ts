@@ -1,27 +1,21 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { ClientsModule, Transport } from '@nestjs/microservices';
-import { AppController } from './app.controller';
-import { apiClientConfig } from '@app/common';
+import {
+  apiAccountsConfig,
+  apiAuthConfig,
+  apiClientConfig,
+} from '@app/common/config';
+import { AccountsModule } from './modules/accounts/accounts.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
+    AccountsModule,
+    AuthModule,
     ConfigModule.forRoot({
-      load: [apiClientConfig],
+      load: [apiClientConfig, apiAccountsConfig, apiAuthConfig],
       isGlobal: true,
     }),
-    ClientsModule.register([
-      {
-        name: 'ACCOUNTS_SERVICE',
-        transport: Transport.TCP,
-        options: {
-          host: '0.0.0.0',
-          port: 8001,
-        },
-      },
-    ]),
   ],
-  controllers: [AppController],
-  providers: [],
 })
 export class AppModule {}

@@ -27,6 +27,8 @@
     "@nestjs/microservices": "7.6.15",
     "@nestjs/platform-express": "^7.6.15",
     "@prisma/client": "^3.2.1",
+    "class-transformer": "^0.4.0",
+    "class-validator": "^0.13.1",
     "joi": "^17.4.2",
     "js-yaml": "^4.1.0",
     "reflect-metadata": "^0.1.13",
@@ -79,7 +81,9 @@
     ],
     "moduleNameMapper": {
       "@app/common/(.*)": "<rootDir>/libs/common/src/$1",
-      "@app/common": "<rootDir>/libs/common/src"
+      "@app/common": "<rootDir>/libs/common/src",
+      "@app/shared/(.*)": "<rootDir>/libs/shared/src/$1",
+      "@app/shared": "<rootDir>/libs/shared/src"
     }
   }
 }

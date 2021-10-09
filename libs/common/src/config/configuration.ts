@@ -1,7 +1,12 @@
-import { ConfigFactory, ConfigObject } from '@nestjs/config';
+import { ConfigFactory, ConfigObject, registerAs } from '@nestjs/config';
 import * as yaml from 'js-yaml';
 import { join } from 'path';
 import { readFileSync } from 'fs';
+import {
+  API_ACCOUNTS_CONFIG,
+  API_AUTH_CONFIG,
+  API_CLIENT_CONFIG,
+} from '@app/common/config/config.const';
 
 export const configFilepath = {
   apiClient: './environments/api-client/env.yaml',
@@ -16,6 +21,14 @@ export const readConfigFile = (
   return yaml.load(readFileSync(path, 'utf-8')) as ConfigFactory<ConfigObject>;
 };
 
-export const apiClientConfig = readConfigFile(configFilepath.apiClient);
-export const apiAccountsConfig = readConfigFile(configFilepath.apiAccounts);
-export const apiAuthConfig = readConfigFile(configFilepath.apiAuth);
+export const apiClientConfig = registerAs(API_CLIENT_CONFIG, () =>
+  readConfigFile(configFilepath.apiClient),
+);
+
+export const apiAccountsConfig = registerAs(API_ACCOUNTS_CONFIG, () =>
+  readConfigFile(configFilepath.apiAccounts),
+);
+
+export const apiAuthConfig = registerAs(API_AUTH_CONFIG, () =>
+  readConfigFile(configFilepath.apiAuth),
+);

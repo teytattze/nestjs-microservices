@@ -1,16 +1,27 @@
 import { NestFactory } from '@nestjs/core';
-import { AccountsModule } from './accounts.module';
-import { TcpOptions, Transport } from '@nestjs/microservices';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { AppModule } from './app.module';
+import { ConfigService } from '@nestjs/config';
+import { API_ACCOUNTS_CONFIG } from '@app/common/config';
 
 async function bootstrap() {
-  const app = await NestFactory.createMicroservice(AccountsModule, {
+  const app = await NestFactory.create(AppModule);
+
+  const configService = app.get(ConfigService);
+  const HOST = configService.get(`${API_ACCOUNTS_CONFIG}.server.host`);
+  const PORT = configService.get(`${API_ACCOUNTS_CONFIG}.server.port`);
+
+  app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.TCP,
     options: {
-      host: '0.0.0.0',
-      port: 8001,
+      host: HOST,
+      port: PORT,
     },
-  } as TcpOptions);
+  });
 
-  await app.listen(() => console.log('Accounts microservices is listening'));
+  await app.startAllMicroservicesAsync();
+  await app.listen(PORT, () =>
+    console.log(`Api-accounts is listening on ${HOST}:${PORT}`),
+  );
 }
-bootstrap();
+bootstrap().catch((err) => console.log(err));
