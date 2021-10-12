@@ -69,4 +69,15 @@ export class AccountsRepository {
       throw new BadRequestException();
     }
   }
+
+  async getAccountByEmail(email: string) {
+    try {
+      return await this.prisma.account.findUnique({
+        where: { email },
+      });
+    } catch (err) {
+      this.logger.error(err);
+      throw new BadRequestException();
+    }
+  }
 }

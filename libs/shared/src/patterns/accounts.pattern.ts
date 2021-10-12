@@ -22,3 +22,8 @@ export const DELETE_ACCOUNT_BY_ID = {
   api: 'accounts',
   name: 'deleteAccountById',
 };
+
+export const IS_ACCOUNT_EXISTED_BY_EMAIL = {
+  api: 'accounts',
+  name: 'isAccountExistedByEmail',
+};

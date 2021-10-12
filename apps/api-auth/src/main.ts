@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
 import { API_AUTH_CONFIG } from '@app/common/config';
+import { ExceptionFilter } from './common/filters/rcp-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

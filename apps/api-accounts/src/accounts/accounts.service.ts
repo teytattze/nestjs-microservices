@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { AccountsRepository } from './accounts.repository';
 import { RegisterAccountDto } from './dto/register-account.dto';
+import { UpdateAccountByIdDto } from './dto/update-account-by-id.dto';
 
 @Injectable()
 export class AccountsService {
@@ -16,5 +17,13 @@ export class AccountsService {
 
   async getAccountById(id: string) {
     return await this.accountsRepository.getAccountById(id);
+  }
+
+  async updateAccountById(id: string, data: UpdateAccountByIdDto) {
+    return await this.accountsRepository.updateAccountById(id, data);
+  }
+
+  async deleteAccountById(id: string) {
+    return await this.accountsRepository.deleteAccountById(id);
   }
 }
