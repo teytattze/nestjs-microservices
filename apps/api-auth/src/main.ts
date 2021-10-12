@@ -3,10 +3,12 @@ import { AppModule } from './app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
 import { API_AUTH_CONFIG } from '@app/common/config';
-import { ExceptionFilter } from './common/filters/rcp-exception.filter';
+import { RpcExceptionFilter } from '@app/common/filters/rpc-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  app.useGlobalFilters(new RpcExceptionFilter());
 
   const configService = app.get(ConfigService);
   const HOST = configService.get(`${API_AUTH_CONFIG}.server.host`);

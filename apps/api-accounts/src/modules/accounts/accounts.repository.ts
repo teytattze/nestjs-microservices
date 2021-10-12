@@ -1,11 +1,17 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpStatus,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { PrismaService } from '@app/common/database/prisma.service';
 import { RegisterAccountDto } from './dto/register-account.dto';
 import { UpdateAccountByIdDto } from './dto/update-account-by-id.dto';
+import { RpcException } from '@nestjs/microservices';
 
 @Injectable()
 export class AccountsRepository {
-  private logger: Logger;
+  private logger: Logger = new Logger(AccountsRepository.name);
   constructor(private readonly prisma: PrismaService) {}
 
   async getAllAccounts() {
@@ -54,8 +60,10 @@ export class AccountsRepository {
         data,
       });
     } catch (err) {
-      this.logger.error(err);
-      throw new BadRequestException();
+      throw new RpcException({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Unable to update account',
+      });
     }
   }
 
@@ -65,8 +73,10 @@ export class AccountsRepository {
         where: { id },
       });
     } catch (err) {
-      this.logger.error(err);
-      throw new BadRequestException();
+      throw new RpcException({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Unable to delete account',
+      });
     }
   }
 

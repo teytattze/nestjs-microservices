@@ -7,6 +7,7 @@ import {
 } from '@app/common/config';
 import { AccountsModule } from './modules/accounts/accounts.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { JwtModule } from './modules/jwt/jwt.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { AuthModule } from './modules/auth/auth.module';
       load: [apiClientConfig, apiAccountsConfig, apiAuthConfig],
       isGlobal: true,
     }),
+    JwtModule,
   ],
 })
 export class AppModule {}

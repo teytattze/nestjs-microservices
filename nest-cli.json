@@ -5,7 +5,13 @@
   "root": "apps/api-client",
   "compilerOptions": {
     "webpack": true,
-    "tsConfigPath": "apps/api-client/tsconfig.app.json"
+    "tsConfigPath": "apps/api-client/tsconfig.app.json",
+    "assets": [
+      {
+        "include": "environments/*.yaml",
+        "watchAssets": true
+      }
+    ]
   },
   "projects": {
     "api-client": {

@@ -3,9 +3,12 @@ import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { API_ACCOUNTS_CONFIG } from '@app/common/config';
+import { RpcExceptionFilter } from '@app/common/filters/rpc-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  app.useGlobalFilters(new RpcExceptionFilter());
 
   const configService = app.get(ConfigService);
   const HOST = configService.get(`${API_ACCOUNTS_CONFIG}.server.host`);

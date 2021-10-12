@@ -2,9 +2,14 @@ import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { AccountsModule } from '../accounts/accounts.module';
+import { JwtModule } from '../jwt/jwt.module';
+import { join } from 'path';
 
 @Module({
-  imports: [AccountsModule],
+  imports: [
+    AccountsModule,
+    JwtModule.register({ jwkFilepath: join(process.cwd(), './secret.json') }),
+  ],
   controllers: [AuthController],
   providers: [AuthService],
 })
