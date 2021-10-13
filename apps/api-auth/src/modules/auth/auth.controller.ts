@@ -1,4 +1,4 @@
-import { LOGIN } from '@app/shared/patterns/auth.pattern';
+import { LOGIN, LOGOUT } from '@app/shared/patterns/auth.pattern';
 import { Controller } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
 import { AuthService } from './auth.service';

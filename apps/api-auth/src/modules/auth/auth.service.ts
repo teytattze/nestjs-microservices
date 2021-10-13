@@ -4,12 +4,14 @@ import { LoginDto } from './dto/login.dto';
 import { AccountsService } from '../accounts/accounts.service';
 import { compareHashedString } from '../../lib/crypto.lib';
 import { JwtService } from '../jwt/jwt.service';
+import { SessionsService } from '../sessions/sessions.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly accountsService: AccountsService,
     private readonly jwtService: JwtService,
+    private readonly sessionsService: SessionsService,
   ) {}
 
   async login({ email, password }: LoginDto) {
@@ -37,8 +39,13 @@ export class AuthService {
       email: account.email,
     });
 
+    const refreshToken = await this.sessionsService.updateAccountSessionById(
+      account.session.id,
+    );
+
     return {
       accessToken,
+      refreshToken,
       account: { ...account, password: null },
     };
   }

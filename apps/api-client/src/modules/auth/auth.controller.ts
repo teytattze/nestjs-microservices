@@ -1,5 +1,8 @@
 import { API_AUTH_CONFIG } from '@app/common/config';
-import { ACCESS_TOKEN_COOKIE_KEY } from '@app/shared/constants/cookies.const';
+import {
+  ACCESS_TOKEN_COOKIE_KEY,
+  REFRESH_TOKEN_COOKIE_KEY,
+} from '@app/shared/constants/cookies.const';
 import {
   ACCOUNTS_SERVICE,
   AUTH_SERVICE,
@@ -22,6 +25,7 @@ import { LoginDto } from './dto/login.dto';
 @Controller('auth')
 export class AuthController {
   private jwtTtl: number;
+  private sessionTtl: number;
 
   constructor(
     @Inject(ACCOUNTS_SERVICE) private readonly accountsService: ClientProxy,
@@ -29,6 +33,7 @@ export class AuthController {
     private readonly configService: ConfigService,
   ) {
     this.jwtTtl = this.configService.get(`${API_AUTH_CONFIG}.jwt.ttl`);
+    this.sessionTtl = this.configService.get(`${API_AUTH_CONFIG}.session.ttl`);
   }
 
   @Post('/login')
@@ -46,6 +51,10 @@ export class AuthController {
 
       response.cookie(ACCESS_TOKEN_COOKIE_KEY, result.accessToken, {
         maxAge: this.jwtTtl * 1000,
+      });
+      response.cookie(REFRESH_TOKEN_COOKIE_KEY, result.refreshToken, {
+        maxAge: this.sessionTtl * 1000,
+        httpOnly: true,
       });
 
       return { account: result.account };
