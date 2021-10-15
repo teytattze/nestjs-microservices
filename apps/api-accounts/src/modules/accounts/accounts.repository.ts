@@ -1,13 +1,11 @@
-import {
-  BadRequestException,
-  HttpStatus,
-  Injectable,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@app/common/database/prisma.service';
 import { RegisterAccountDto } from './dto/register-account.dto';
 import { UpdateAccountByIdDto } from './dto/update-account-by-id.dto';
 import { RpcException } from '@nestjs/microservices';
+import { accountErrors } from '@app/shared/errors/accounts.error';
+import { PrismaErrorCode } from '@app/shared/errors/prisma.error';
+import { defaultErrors } from '@app/shared/errors/default.error';
 
 @Injectable()
 export class AccountsRepository {
@@ -16,10 +14,10 @@ export class AccountsRepository {
 
   async getAllAccounts() {
     try {
-      return await this.prisma.account.findMany();
+      return await this.prisma.account.findMany({});
     } catch (err) {
       this.logger.error(err);
-      throw new BadRequestException();
+      throw new RpcException(defaultErrors.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -38,7 +36,7 @@ export class AccountsRepository {
       });
     } catch (err) {
       this.logger.error(err);
-      throw new BadRequestException();
+      throw new RpcException(defaultErrors.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -49,7 +47,7 @@ export class AccountsRepository {
       });
     } catch (err) {
       this.logger.error(err);
-      throw new BadRequestException();
+      throw new RpcException(defaultErrors.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -60,10 +58,16 @@ export class AccountsRepository {
         data,
       });
     } catch (err) {
-      throw new RpcException({
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Unable to update account',
-      });
+      this.logger.error(err);
+      console.log(err);
+      switch (err.code) {
+        case PrismaErrorCode.UNIQUE:
+          throw new RpcException(accountErrors.duplicatedEmail);
+        case PrismaErrorCode.NOT_FOUNDED:
+          throw new RpcException(accountErrors.accountNotFounded);
+        default:
+          throw new RpcException(defaultErrors.INTERNAL_SERVER_ERROR);
+      }
     }
   }
 
@@ -73,10 +77,13 @@ export class AccountsRepository {
         where: { id },
       });
     } catch (err) {
-      throw new RpcException({
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Unable to delete account',
-      });
+      this.logger.error(err);
+      switch (err.code) {
+        case PrismaErrorCode.NOT_FOUNDED:
+          throw new RpcException(accountErrors.accountNotFounded);
+        default:
+          throw new RpcException(defaultErrors.INTERNAL_SERVER_ERROR);
+      }
     }
   }
 
@@ -87,7 +94,7 @@ export class AccountsRepository {
       });
     } catch (err) {
       this.logger.error(err);
-      throw new BadRequestException();
+      throw new RpcException(defaultErrors.INTERNAL_SERVER_ERROR);
     }
   }
 }

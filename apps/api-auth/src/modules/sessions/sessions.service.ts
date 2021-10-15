@@ -1,9 +1,9 @@
 import { API_AUTH_CONFIG } from '@app/common/config';
+import { createRandomBytes } from '@app/shared/utils/crypto.util';
+import { createExpiredDate, isExpired } from '@app/shared/utils/time.util';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { RpcException } from '@nestjs/microservices';
-import * as moment from 'moment';
-import { createRandomBytes } from '../../lib/crypto.lib';
 import { SessionsRepository } from './sessions.repository';
 
 @Injectable()
@@ -27,7 +27,7 @@ export class SessionsService {
     if (
       currentSession.token !== null &&
       currentSession.expires !== null &&
-      !this.isSessionExpires(currentSession.expires)
+      !isExpired(currentSession.expires)
     ) {
       return currentSession;
     }
@@ -60,17 +60,9 @@ export class SessionsService {
     return currentSession;
   }
 
-  generateSession() {
+  private generateSession() {
     const token = createRandomBytes(this.bytes);
-    const expires = moment()
-      .add(this.ttl * 1000)
-      .toISOString();
-
+    const expires = createExpiredDate(this.ttl);
     return { token, expires };
-  }
-
-  isSessionExpires(expires: Date) {
-    const now = moment().toISOString();
-    return moment(expires).isBefore(now);
   }
 }

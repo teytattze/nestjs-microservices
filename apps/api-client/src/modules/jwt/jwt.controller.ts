@@ -1,5 +1,5 @@
 import { JWT_SERVICE } from '@app/shared/constants/providers.const';
-import { REFRESH_JWKS } from '@app/shared/patterns/auth.pattern';
+import { REFRESH_JWKS } from '@app/shared/patterns/jwt.pattern';
 import { Controller, Get, Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 

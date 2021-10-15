@@ -1,6 +1,10 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { accountErrors } from '@app/shared/errors/accounts.error';
+import { defaultErrors } from '@app/shared/errors/default.error';
+import { IAccount } from '@app/shared/interfaces/accounts.interface';
+import { createHashString } from '@app/shared/utils/crypto.util';
+import { deleteObjectField } from '@app/shared/utils/objects.util';
+import { Injectable } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
-import * as bcrypt from 'bcryptjs';
 import { AccountsRepository } from './accounts.repository';
 import { RegisterAccountDto } from './dto/register-account.dto';
 import { UpdateAccountByIdDto } from './dto/update-account-by-id.dto';
@@ -12,45 +16,44 @@ export class AccountsService {
   constructor(private readonly accountsRepository: AccountsRepository) {}
 
   async getAllAccounts() {
-    return await this.accountsRepository.getAllAccounts();
+    const result = await this.accountsRepository.getAllAccounts();
+    return deleteObjectField<IAccount>(result, 'password');
   }
 
   async registerAccount({ email, password }: RegisterAccountDto) {
     const account = await this.accountsRepository.getAccountByEmail(email);
     if (account) {
-      throw new RpcException({
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: 'This email has already taken',
-      });
+      throw new RpcException(accountErrors.duplicatedEmail);
     }
-    const hashedPassword = await this.hashString(password);
-    return await this.accountsRepository.createAccount({
+    const hashedPassword = await createHashString(password, SALT_ROUNDS);
+    const result = await this.accountsRepository.createAccount({
       email,
       password: hashedPassword,
     });
+    return deleteObjectField<IAccount>(result, 'password');
   }
 
   async getAccountById(id: string) {
-    const result = await this.accountsRepository.getAccountById(id);
+    const result = await this.accountsRepository.getAccountByEmail(id);
     if (!result) {
-      throw new RpcException({
-        statusCode: HttpStatus.NOT_FOUND,
-        message: 'Account not found',
-      });
+      throw new RpcException(accountErrors.accountNotFounded);
     }
-    return result;
+    return deleteObjectField<IAccount>(result, 'password');
   }
 
   async updateAccountById(id: string, data: UpdateAccountByIdDto) {
-    return await this.accountsRepository.updateAccountById(id, data);
+    const result = await this.accountsRepository.updateAccountById(id, data);
+    if (!result) {
+      throw new RpcException(defaultErrors.BAD_REQUEST);
+    }
+    return deleteObjectField<IAccount>(result, 'password');
   }
 
   async deleteAccountById(id: string) {
-    return await this.accountsRepository.deleteAccountById(id);
-  }
-
-  private async hashString(value: string) {
-    const hashedValue = await bcrypt.hash(value, SALT_ROUNDS);
-    return hashedValue;
+    const result = await this.accountsRepository.deleteAccountById(id);
+    if (!result) {
+      throw new RpcException(defaultErrors.BAD_REQUEST);
+    }
+    return deleteObjectField<IAccount>(result, 'password');
   }
 }

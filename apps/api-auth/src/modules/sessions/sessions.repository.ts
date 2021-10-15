@@ -1,4 +1,3 @@
-import { Prisma } from '.prisma/client';
 import { PrismaService } from '@app/common/database/prisma.service';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';

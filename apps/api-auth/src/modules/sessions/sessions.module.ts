@@ -1,11 +1,10 @@
-import { DatabaseModule } from '@app/common/database/database.module';
+import { PrismaService } from '@app/common/database/prisma.service';
 import { Module } from '@nestjs/common';
 import { SessionsRepository } from './sessions.repository';
 import { SessionsService } from './sessions.service';
 
 @Module({
-  imports: [DatabaseModule],
-  providers: [SessionsService, SessionsRepository],
+  providers: [SessionsService, SessionsRepository, PrismaService],
   exports: [SessionsService],
 })
 export class SessionsModule {}

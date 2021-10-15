@@ -15,7 +15,7 @@ export class HttpExceptionFilter extends BaseExceptionFilter {
   ) {
     const response = host.switchToHttp().getResponse();
     const responseError = createGeneralExceptionError(err);
-    response.status(responseError.statusCode).json({
+    response.status(responseError.statusCode).send({
       ...responseError,
     });
   }
@@ -30,6 +30,15 @@ const createGeneralExceptionError = (error: any): IGeneralErrorResponse => {
       errorCode: errorResponse.errorCode,
       message: errorResponse.message,
       description: errorResponse.description,
+    };
+  }
+
+  if (typeof error === 'object') {
+    return {
+      statusCode: error.statusCode,
+      errorCode: error.errorCode,
+      message: error.message,
+      description: error.description,
     };
   }
 

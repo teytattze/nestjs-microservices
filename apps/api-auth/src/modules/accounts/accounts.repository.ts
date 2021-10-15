@@ -4,7 +4,7 @@ import { RpcException } from '@nestjs/microservices';
 
 @Injectable()
 export class AccountsRepository {
-  private logger: Logger = new Logger();
+  private logger: Logger = new Logger(AccountsRepository.name);
   constructor(private readonly prisma: PrismaService) {}
 
   async getAccountByEmail(email: string) {

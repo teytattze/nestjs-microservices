@@ -1,4 +1,17 @@
 import { API_AUTH_CONFIG } from '@app/common/config';
+import {
+  JWT_MODULE_CONFIG_OPTIONS,
+  PRIVATE_JWK,
+  PUBLIC_JWK,
+} from '@app/shared/constants/jwt.const';
+import {
+  IJwtAccount,
+  IJwtModuleConfigOptions,
+  IJwtPayload,
+} from '@app/shared/interfaces/jwt.interface';
+import { readFile } from '@app/shared/utils/read-file.util';
+import { getExpiresTime } from '@app/shared/utils/time.util';
+import { writeFile } from '@app/shared/utils/write-file.util';
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { RpcException } from '@nestjs/microservices';
@@ -8,20 +21,6 @@ import { SignJWT } from 'jose/jwt/sign';
 import { jwtVerify } from 'jose/jwt/verify';
 import { decodeProtectedHeader } from 'jose/util/decode_protected_header';
 import { generateKeyPair } from 'jose/util/generate_key_pair';
-import { readFile } from '../../lib/read-file.lib';
-import { getExpiresTime } from '../../lib/time.lib';
-import { writeFile } from '../../lib/write-file.lib';
-import {
-  JWT_MODULE_CONFIG_OPTIONS,
-  JWT_VERIFICATION_EXPIRED,
-  PRIVATE_JWK,
-  PUBLIC_JWK,
-} from './jwt.const';
-import {
-  IJwtAccount,
-  IJwtModuleConfigOptions,
-  IJwtPayload,
-} from './jwt.interface';
 
 @Injectable()
 export class JwtService {
@@ -43,14 +42,14 @@ export class JwtService {
     this.loadJwks();
   }
 
-  async generateJwtToken(payload: IJwtAccount) {
+  async generateJwt(payload: IJwtAccount) {
     const expires = getExpiresTime(this.ttl);
     const kid = Math.floor(Math.random() * 10 + 1).toString();
 
     const privateJwk = this.jwks[kid][PRIVATE_JWK];
     const privateKey = await parseJwk({ ...privateJwk, alg: this.alg });
 
-    const jwtToken = await new SignJWT({ user: payload })
+    const jwtToken = await new SignJWT({ account: payload })
       .setProtectedHeader({ alg: this.alg, kid })
       .setExpirationTime(expires)
       .sign(privateKey);
@@ -58,7 +57,7 @@ export class JwtService {
     return jwtToken;
   }
 
-  async verifyJwtToken(token: string): Promise<IJwtPayload> {
+  async verifyJwt(token: string): Promise<IJwtPayload> {
     try {
       const { alg, kid } = await decodeProtectedHeader(token);
 
@@ -69,11 +68,10 @@ export class JwtService {
 
       return payload as IJwtPayload;
     } catch (err) {
-      if (err.code === JWT_VERIFICATION_EXPIRED) {
-        throw new RpcException({ statusCode: HttpStatus.UNAUTHORIZED });
-      } else {
-        throw new RpcException({ statusCode: HttpStatus.UNAUTHORIZED });
-      }
+      throw new RpcException({
+        statusCode: HttpStatus.UNAUTHORIZED,
+        message: 'Jwt expired',
+      });
     }
   }
 

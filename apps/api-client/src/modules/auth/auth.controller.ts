@@ -3,23 +3,14 @@ import {
   ACCESS_TOKEN_COOKIE_KEY,
   REFRESH_TOKEN_COOKIE_KEY,
 } from '@app/shared/constants/cookies.const';
-import {
-  ACCOUNTS_SERVICE,
-  AUTH_SERVICE,
-} from '@app/shared/constants/providers.const';
+import { AUTH_SERVICE } from '@app/shared/constants/providers.const';
 import { ILoginResponse } from '@app/shared/interfaces/auth.interface';
 import { LOGIN } from '@app/shared/patterns/auth.pattern';
-import {
-  Body,
-  Controller,
-  HttpException,
-  Inject,
-  Post,
-  Res,
-} from '@nestjs/common';
+import { Body, Controller, Get, Inject, Post, Res } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ClientProxy } from '@nestjs/microservices';
 import { Response } from 'express';
+import { firstValueFrom } from 'rxjs';
 import { LoginDto } from './dto/login.dto';
 
 @Controller('auth')
@@ -28,7 +19,6 @@ export class AuthController {
   private sessionTtl: number;
 
   constructor(
-    @Inject(ACCOUNTS_SERVICE) private readonly accountsService: ClientProxy,
     @Inject(AUTH_SERVICE) private readonly authService: ClientProxy,
     private readonly configService: ConfigService,
   ) {
@@ -41,30 +31,31 @@ export class AuthController {
     @Body() { email, password }: LoginDto,
     @Res({ passthrough: true }) response: Response,
   ) {
-    try {
-      const result = (await this.authService
-        .send(LOGIN, {
-          email,
-          password,
-        })
-        .toPromise()) as ILoginResponse;
+    const result = (await firstValueFrom(
+      this.authService.send(LOGIN, {
+        email,
+        password,
+      }),
+    )) as ILoginResponse;
 
-      response.cookie(ACCESS_TOKEN_COOKIE_KEY, result.accessToken, {
-        maxAge: this.jwtTtl * 1000,
-      });
-      response.cookie(REFRESH_TOKEN_COOKIE_KEY, result.refreshToken, {
-        maxAge: this.sessionTtl * 1000,
-        httpOnly: true,
-      });
+    response.cookie(ACCESS_TOKEN_COOKIE_KEY, result.accessToken, {
+      maxAge: this.jwtTtl * 1000,
+    });
+    response.cookie(REFRESH_TOKEN_COOKIE_KEY, result.refreshToken, {
+      maxAge: this.sessionTtl * 1000,
+      httpOnly: true,
+    });
 
-      return { account: result.account };
-    } catch (err) {
-      throw new HttpException({ ...err }, err.statusCode);
-    }
+    return result.account;
   }
 
-  @Post('/logout')
+  @Get('/logout')
   async logout() {
+    return;
+  }
+
+  @Get('/refresh-access')
+  async refreshAccess() {
     return;
   }
 }

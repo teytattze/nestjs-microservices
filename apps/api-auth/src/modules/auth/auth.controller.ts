@@ -12,4 +12,9 @@ export class AuthController {
   async login({ email, password }: LoginDto) {
     return await this.authService.login({ email, password });
   }
+
+  @MessagePattern(LOGOUT)
+  async logout() {
+    return null;
+  }
 }

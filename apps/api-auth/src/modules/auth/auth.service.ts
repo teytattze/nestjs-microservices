@@ -1,8 +1,9 @@
+import { deleteObjectField } from '@app/shared/utils/objects.util';
+import { compareHashedString } from '@app/shared/utils/crypto.util';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { LoginDto } from './dto/login.dto';
 import { AccountsService } from '../accounts/accounts.service';
-import { compareHashedString } from '../../lib/crypto.lib';
 import { JwtService } from '../jwt/jwt.service';
 import { SessionsService } from '../sessions/sessions.service';
 
@@ -34,7 +35,7 @@ export class AuthService {
       });
     }
 
-    const accessToken = await this.jwtService.generateJwtToken({
+    const accessToken = await this.jwtService.generateJwt({
       id: account.id,
       email: account.email,
     });
@@ -43,10 +44,13 @@ export class AuthService {
       account.session.id,
     );
 
+    deleteObjectField(account, 'password');
+    deleteObjectField(account, 'session');
+
     return {
       accessToken,
       refreshToken,
-      account: { ...account, password: null },
+      account,
     };
   }
 }

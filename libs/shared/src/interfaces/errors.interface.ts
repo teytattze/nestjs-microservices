@@ -1,6 +1,6 @@
 export interface IGeneralErrorResponse {
   statusCode: number;
-  errorCode?: string;
+  errorCode?: number;
   message?: string;
   description?: string | string[] | unknown;
 }

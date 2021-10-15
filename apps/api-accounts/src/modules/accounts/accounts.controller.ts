@@ -36,6 +36,7 @@ export class AccountsController {
   async updateAccountById(
     @Payload() { id, data }: { id: string; data: UpdateAccountByIdDto },
   ) {
+    console.log(id, data);
     return await this.accountsService.updateAccountById(id, data);
   }
 

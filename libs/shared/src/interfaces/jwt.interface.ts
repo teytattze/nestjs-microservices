@@ -10,5 +10,5 @@ export interface IJwtAccount {
 }
 
 export interface IJwtPayload extends JWTPayload {
-  user: IJwtAccount;
+  account: IJwtAccount;
 }

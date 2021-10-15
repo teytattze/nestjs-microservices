@@ -10,6 +10,6 @@ export class RpcExceptionFilter
   implements BaseRpcExceptionFilter<RpcException>
 {
   catch(exception: RpcException): Observable<any> {
-    return throwError(exception.getError());
+    return throwError(() => exception.getError());
   }
 }
