@@ -5,3 +5,7 @@ export interface ILoginResponse {
   refreshToken: string;
   account: Account;
 }
+
+export interface IRefreshAccessResponse {
+  accessToken: string;
+}

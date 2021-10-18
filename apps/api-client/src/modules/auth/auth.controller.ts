@@ -1,15 +1,20 @@
 import { API_AUTH_CONFIG } from '@app/common/config';
 import {
   ACCESS_TOKEN_COOKIE_KEY,
+  ACCOUNT_COOKIE_KEY,
   REFRESH_TOKEN_COOKIE_KEY,
 } from '@app/shared/constants/cookies.const';
 import { AUTH_SERVICE } from '@app/shared/constants/providers.const';
-import { ILoginResponse } from '@app/shared/interfaces/auth.interface';
-import { LOGIN } from '@app/shared/patterns/auth.pattern';
-import { Body, Controller, Get, Inject, Post, Res } from '@nestjs/common';
+import { IAccount } from '@app/shared/interfaces/accounts.interface';
+import {
+  ILoginResponse,
+  IRefreshAccessResponse,
+} from '@app/shared/interfaces/auth.interface';
+import { LOGIN, REFRESH_ACCESS } from '@app/shared/patterns/auth.pattern';
+import { Body, Controller, Get, Inject, Post, Req, Res } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ClientProxy } from '@nestjs/microservices';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { firstValueFrom } from 'rxjs';
 import { LoginDto } from './dto/login.dto';
 
@@ -45,17 +50,40 @@ export class AuthController {
       maxAge: this.sessionTtl * 1000,
       httpOnly: true,
     });
+    response.cookie(ACCOUNT_COOKIE_KEY, result.account, {
+      maxAge: this.sessionTtl * 1000,
+      httpOnly: true,
+    });
 
-    return result.account;
+    return { message: 'Login successfully' };
   }
 
-  @Get('/logout')
-  async logout() {
-    return;
+  @Post('/logout')
+  async logout(@Res({ passthrough: true }) response: Response) {
+    response.clearCookie(ACCESS_TOKEN_COOKIE_KEY);
+    response.clearCookie(REFRESH_TOKEN_COOKIE_KEY);
+    return { message: 'Logout successfully' };
   }
 
   @Get('/refresh-access')
-  async refreshAccess() {
-    return;
+  async refreshAccess(
+    @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const refreshToken = request.cookies[REFRESH_TOKEN_COOKIE_KEY];
+    const account = request.cookies[ACCOUNT_COOKIE_KEY] as IAccount;
+
+    const result = (await firstValueFrom(
+      this.authService.send(REFRESH_ACCESS, {
+        id: account.id,
+        refreshToken,
+      }),
+    )) as IRefreshAccessResponse;
+
+    response.cookie(ACCESS_TOKEN_COOKIE_KEY, result.accessToken, {
+      maxAge: this.jwtTtl * 1000,
+    });
+
+    return { message: 'Refresh access successfully' };
   }
 }

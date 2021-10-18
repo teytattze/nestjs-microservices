@@ -68,6 +68,7 @@ export class AccountsController {
     );
   }
 
+  @UseGuards(JwtGuard)
   @Get('/:id')
   async getAccountById(@Param() { id }: GetAccountByIdDto) {
     return await firstValueFrom(

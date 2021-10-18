@@ -21,4 +21,19 @@ export class AccountsRepository {
       });
     }
   }
+
+  async getAccountById(id: string) {
+    try {
+      return await this.prisma.account.findUnique({
+        where: { id },
+        include: { session: true },
+      });
+    } catch (err) {
+      this.logger.error(err);
+      throw new RpcException({
+        statusCode: HttpStatus.UNAUTHORIZED,
+        message: 'Unauthorized',
+      });
+    }
+  }
 }

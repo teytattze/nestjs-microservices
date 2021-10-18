@@ -1,8 +1,9 @@
-import { LOGIN, LOGOUT } from '@app/shared/patterns/auth.pattern';
+import { LOGIN, REFRESH_ACCESS } from '@app/shared/patterns/auth.pattern';
 import { Controller } from '@nestjs/common';
-import { MessagePattern } from '@nestjs/microservices';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
+import { RefreshAccessDto } from './dto/refresh-access.dto';
 
 @Controller()
 export class AuthController {
@@ -13,8 +14,8 @@ export class AuthController {
     return await this.authService.login({ email, password });
   }
 
-  @MessagePattern(LOGOUT)
-  async logout() {
-    return null;
+  @MessagePattern(REFRESH_ACCESS)
+  async refreshAccess(@Payload() data: RefreshAccessDto) {
+    return await this.authService.refreshAccess({ ...data });
   }
 }

@@ -6,6 +6,8 @@ import { LoginDto } from './dto/login.dto';
 import { AccountsService } from '../accounts/accounts.service';
 import { JwtService } from '../jwt/jwt.service';
 import { SessionsService } from '../sessions/sessions.service';
+import { RefreshAccessDto } from './dto/refresh-access.dto';
+import { authErrors } from '@app/shared/errors/auth.error';
 
 @Injectable()
 export class AuthService {
@@ -16,23 +18,14 @@ export class AuthService {
   ) {}
 
   async login({ email, password }: LoginDto) {
-    const account = await this.accountsService.isAccountExistedByEmail(email);
-    if (!account) {
-      throw new RpcException({
-        statusCode: HttpStatus.UNAUTHORIZED,
-        message: 'Unauthorized',
-      });
-    }
+    const account = await this.accountsService.getAccountByEmail(email);
 
     const isPasswordMatched = await compareHashedString(
       password,
       account.password,
     );
     if (!isPasswordMatched) {
-      throw new RpcException({
-        statusCode: HttpStatus.UNAUTHORIZED,
-        message: 'Unauthorized',
-      });
+      throw new RpcException(authErrors.wrongCredentials);
     }
 
     const accessToken = await this.jwtService.generateJwt({
@@ -51,6 +44,22 @@ export class AuthService {
       accessToken,
       refreshToken,
       account,
+    };
+  }
+
+  async refreshAccess(data: RefreshAccessDto) {
+    const { id, refreshToken } = data;
+    const account = await this.accountsService.getAccountById(id);
+
+    await this.sessionsService.verifySession(account.session.id, refreshToken);
+
+    const accessToken = await this.jwtService.generateJwt({
+      id: account.id,
+      email: account.email,
+    });
+
+    return {
+      accessToken,
     };
   }
 }

@@ -8,7 +8,7 @@ export const LOGOUT = {
   name: 'logout',
 };
 
-export const IS_ACCOUNT_EXISTED_BY_EMAIL = {
+export const REFRESH_ACCESS = {
   api: 'auth',
-  name: 'isAccountExistedByEmail',
+  name: 'refreshAccess',
 };

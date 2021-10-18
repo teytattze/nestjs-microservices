@@ -4,6 +4,7 @@ import { API_CLIENT_CONFIG } from '@app/common/config';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { HttpExceptionFilter } from '@app/common/filters/http-exception.filter';
+import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -11,6 +12,8 @@ async function bootstrap() {
   app.setGlobalPrefix('/api');
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalPipes(new ValidationPipe());
+
+  app.use(cookieParser());
 
   const configService = app.get(ConfigService);
   const HOST = configService.get(`${API_CLIENT_CONFIG}.server.host`);

@@ -34,7 +34,7 @@ export class AccountsService {
   }
 
   async getAccountById(id: string) {
-    const result = await this.accountsRepository.getAccountByEmail(id);
+    const result = await this.accountsRepository.getAccountById(id);
     if (!result) {
       throw new RpcException(accountErrors.accountNotFounded);
     }

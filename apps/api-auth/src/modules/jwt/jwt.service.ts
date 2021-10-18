@@ -4,6 +4,7 @@ import {
   PRIVATE_JWK,
   PUBLIC_JWK,
 } from '@app/shared/constants/jwt.const';
+import { authErrors } from '@app/shared/errors/auth.error';
 import {
   IJwtAccount,
   IJwtModuleConfigOptions,
@@ -12,7 +13,7 @@ import {
 import { readFile } from '@app/shared/utils/read-file.util';
 import { getExpiresTime } from '@app/shared/utils/time.util';
 import { writeFile } from '@app/shared/utils/write-file.util';
-import { HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { RpcException } from '@nestjs/microservices';
 import { fromKeyLike } from 'jose/jwk/from_key_like';
@@ -68,10 +69,7 @@ export class JwtService {
 
       return payload as IJwtPayload;
     } catch (err) {
-      throw new RpcException({
-        statusCode: HttpStatus.UNAUTHORIZED,
-        message: 'Jwt expired',
-      });
+      throw new RpcException(authErrors.accessTokenInvalid);
     }
   }
 

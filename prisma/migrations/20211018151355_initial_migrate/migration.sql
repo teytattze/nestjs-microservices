@@ -13,7 +13,7 @@ CREATE TABLE `accounts` (
 -- CreateTable
 CREATE TABLE `sessions` (
     `id` VARCHAR(191) NOT NULL,
-    `token` VARCHAR(191),
+    `token` VARCHAR(1024),
     `expires` DATETIME(3),
     `account_id` VARCHAR(191) NOT NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
