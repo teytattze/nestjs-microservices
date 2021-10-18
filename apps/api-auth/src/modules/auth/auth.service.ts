@@ -1,6 +1,6 @@
 import { deleteObjectField } from '@app/shared/utils/objects.util';
 import { compareHashedString } from '@app/shared/utils/crypto.util';
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { LoginDto } from './dto/login.dto';
 import { AccountsService } from '../accounts/accounts.service';

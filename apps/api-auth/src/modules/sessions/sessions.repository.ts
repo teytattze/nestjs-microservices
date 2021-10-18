@@ -1,6 +1,6 @@
 import { PrismaService } from '@app/common/database/prisma.service';
-import { HttpStatus, Injectable, Logger } from '@nestjs/common';
-import { RpcException } from '@nestjs/microservices';
+import { Injectable, Logger } from '@nestjs/common';
+import { handleSessionsRepositoryError } from './sessions.lib';
 
 @Injectable()
 export class SessionsRepository {
@@ -12,10 +12,7 @@ export class SessionsRepository {
       return await this.prisma.session.findUnique({ where: { id } });
     } catch (err) {
       this.logger.error(err);
-      throw new RpcException({
-        statusCode: HttpStatus.UNAUTHORIZED,
-        message: 'Unauthorized',
-      });
+      handleSessionsRepositoryError(err);
     }
   }
 
@@ -26,11 +23,8 @@ export class SessionsRepository {
         data,
       });
     } catch (err) {
-      this.logger.log(err);
-      throw new RpcException({
-        statusCode: HttpStatus.UNAUTHORIZED,
-        message: 'Unauthorized',
-      });
+      this.logger.error(err);
+      handleSessionsRepositoryError(err);
     }
   }
 }

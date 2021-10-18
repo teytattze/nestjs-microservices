@@ -8,7 +8,9 @@ export class AccountsService {
   constructor(private readonly accountsRepository: AccountsRepository) {}
 
   async getAccountByEmail(email: string) {
-    const account = await this.accountsRepository.getAccountByEmail(email);
+    const account = await this.accountsRepository.getAccountByEmailWithSession(
+      email,
+    );
     if (!account) {
       throw new RpcException(authErrors.wrongCredentials);
     }
@@ -16,7 +18,7 @@ export class AccountsService {
   }
 
   async getAccountById(id: string) {
-    const account = await this.accountsRepository.getAccountById(id);
+    const account = await this.accountsRepository.getAccountByIdWithSession(id);
     if (!account) {
       throw new RpcException(authErrors.wrongCredentials);
     }

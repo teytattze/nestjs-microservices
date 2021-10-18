@@ -10,8 +10,8 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @MessagePattern(LOGIN)
-  async login({ email, password }: LoginDto) {
-    return await this.authService.login({ email, password });
+  async login(@Payload() data: LoginDto) {
+    return await this.authService.login({ ...data });
   }
 
   @MessagePattern(REFRESH_ACCESS)

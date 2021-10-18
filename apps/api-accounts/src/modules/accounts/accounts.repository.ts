@@ -2,10 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@app/common/database/prisma.service';
 import { RegisterAccountDto } from './dto/register-account.dto';
 import { UpdateAccountByIdDto } from './dto/update-account-by-id.dto';
-import { RpcException } from '@nestjs/microservices';
-import { accountErrors } from '@app/shared/errors/accounts.error';
-import { PrismaErrorCode } from '@app/shared/errors/prisma.error';
-import { defaultErrors } from '@app/shared/errors/default.error';
+import { handleAccountsRepositoryError } from './accounts.lib';
 
 @Injectable()
 export class AccountsRepository {
@@ -17,7 +14,7 @@ export class AccountsRepository {
       return await this.prisma.account.findMany({});
     } catch (err) {
       this.logger.error(err);
-      throw new RpcException(defaultErrors.INTERNAL_SERVER_ERROR);
+      handleAccountsRepositoryError(err);
     }
   }
 
@@ -36,7 +33,7 @@ export class AccountsRepository {
       });
     } catch (err) {
       this.logger.error(err);
-      throw new RpcException(defaultErrors.INTERNAL_SERVER_ERROR);
+      handleAccountsRepositoryError(err);
     }
   }
 
@@ -47,7 +44,7 @@ export class AccountsRepository {
       });
     } catch (err) {
       this.logger.error(err);
-      throw new RpcException(defaultErrors.INTERNAL_SERVER_ERROR);
+      handleAccountsRepositoryError(err);
     }
   }
 
@@ -59,15 +56,7 @@ export class AccountsRepository {
       });
     } catch (err) {
       this.logger.error(err);
-      console.log(err);
-      switch (err.code) {
-        case PrismaErrorCode.UNIQUE:
-          throw new RpcException(accountErrors.duplicatedEmail);
-        case PrismaErrorCode.NOT_FOUNDED:
-          throw new RpcException(accountErrors.accountNotFounded);
-        default:
-          throw new RpcException(defaultErrors.INTERNAL_SERVER_ERROR);
-      }
+      handleAccountsRepositoryError(err);
     }
   }
 
@@ -78,12 +67,7 @@ export class AccountsRepository {
       });
     } catch (err) {
       this.logger.error(err);
-      switch (err.code) {
-        case PrismaErrorCode.NOT_FOUNDED:
-          throw new RpcException(accountErrors.accountNotFounded);
-        default:
-          throw new RpcException(defaultErrors.INTERNAL_SERVER_ERROR);
-      }
+      handleAccountsRepositoryError(err);
     }
   }
 
@@ -94,7 +78,7 @@ export class AccountsRepository {
       });
     } catch (err) {
       this.logger.error(err);
-      throw new RpcException(defaultErrors.INTERNAL_SERVER_ERROR);
+      handleAccountsRepositoryError(err);
     }
   }
 }
